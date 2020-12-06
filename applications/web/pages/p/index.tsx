@@ -4,17 +4,18 @@ import { withRouter, useRouter, NextRouter } from "next/router";
 import { connect } from "react-redux";
 import { Octokit } from "@octokit/rest";
 import { formatDistanceToNow } from "date-fns";
-import { AppState } from "@nteract/core"
+import { State, GlobalRecord } from "../../redux/store"
 import dynamic from "next/dynamic";
 import Immutable from "immutable";
 // nteract
 import { contentByRef } from "@nteract/selectors";
 import { ContentRecord } from "@nteract/types";
 import { Host } from "@mybinder/host-cache";
-import { toJS, stringifyNotebook } from "@nteract/commutable";
+import { stringifyNotebook } from "@nteract/commutable";
 const CodeMirrorEditor = dynamic(() => import('@nteract/editor'), { ssr: false });
 
 // User defined
+import { toggleBinderMenu, toggleConsole } from "../../redux/actions"
 import { Menu, MenuItem } from '../../components/Menu'
 import { Button } from '../../components/Button'
 import { Console } from '../../components/Console'
@@ -41,7 +42,8 @@ export interface ComponentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export interface StateProps {
-  contents: Immutable.Map<string, ContentRecord>
+  contents: Immutable.Map<string, ContentRecord>,
+  globalState: GlobalRecord
 }
 
 type Props = ComponentProps & StateProps;
@@ -52,8 +54,6 @@ type Props = ComponentProps & StateProps;
 export const Main: FC<WithRouterProps> = (props: Props) => {
   const router = useRouter()
   // Toggle Values
-  const [showBinderMenu, setShowBinderMenu] = useState(false)
-  const [showConsole, setShowConsole] = useState(false)
   const [showSaveDialog, setShowSaveDialog] = useState(false)
   // Git API Values
   const [filePath, setFilepath] = useState(router.query.file as string)
@@ -420,7 +420,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
 
       <NextHead />
       {
-        showBinderMenu &&
+        props.globalState.showBinderMenu &&
 
         <BinderMenu
           provider={provider}
@@ -442,7 +442,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
       <Notification notifications={notificationLog} />
 
       {
-        showConsole && <Console style={{
+        props.globalState.showConsole && <Console style={{
           position: "absolute",
           bottom: "30px",
           right: "0px",
@@ -487,7 +487,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
           }
 
           <MenuItem>
-            <Button text="Menu" variant="outlined" icon={menuIcon} onClick={() => toggle(showBinderMenu, setShowBinderMenu)} />
+            <Button text="Menu" variant="outlined" icon={menuIcon} onClick={() => props.toggleBinderMenu() } />
           </MenuItem>
 
         </Menu>
@@ -515,7 +515,6 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
         />
       </Side>
       <Body>
-
 
         {filePath && editor}
 
@@ -546,7 +545,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
 
         <Menu>
           <MenuItem>
-            <Button text="Console" icon={consoleIcon} variant="transparent" onClick={() => toggle(showConsole, setShowConsole)} />
+            <Button text="Console" icon={consoleIcon} variant="transparent" onClick={() => props.toggleConsole()} />
           </MenuItem>
           <MenuItem>
             <Button text="Python 3" icon={pythonIcon} variant="transparent" disabled />
@@ -566,17 +565,16 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
 }
 
 
-const makeMapStateToProps = (
-  initialState: AppState
-) => {
-  const mapStateToProps = (state: AppState): StateProps => {
-    return {
-      contents: contentByRef(state)
-    }
-  }
 
-  return mapStateToProps
-};
+const mapStateToProps = (state: State): StateProps => ({
+      contents: contentByRef(state),
+      globalState: state.global
+})
+
+const mapDispatchToProps = {
+      toggleBinderMenu: toggleBinderMenu,
+      toggleConsole: toggleConsole
+}
 
 
-export default connect(makeMapStateToProps, null)(withRouter(Main))
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Main))

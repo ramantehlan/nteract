@@ -3,6 +3,8 @@ import { compose } from "redux";
 
 import {
   AppState,
+  AppRecord,
+  CoreRecord,
   ContentRecord,
   createKernelspecsRef,
   epics as coreEpics,
@@ -19,6 +21,7 @@ import { notifications } from "@nteract/mythic-notifications";
 import { makeConfigureStore } from "@nteract/myths";
 import { Media } from "@nteract/outputs";
 import { contents } from "rx-jupyter";
+import globalReducer from "./reducers"
 
 const kernelspecsRef = createKernelspecsRef();
 
@@ -27,7 +30,44 @@ const composeEnhancers =
     ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     : compose;
 
-export const initialState = Record<AppState>({
+
+export interface GlobalRecord {
+    // Toggle Values
+    showBinderMenu: boolean,
+    showConsole: boolean,
+    showSaveDialog: boolean,
+    // Git API Values
+    filePath: string,
+    fileContent: string,
+    provider: string,
+    org: string,
+    repo: string,
+    gitRef: string,
+    // File info
+    lang: string,
+}
+export interface State extends AppState {
+  global: GlobalRecord,
+  app: AppRecord,
+  core: CoreRecord
+}
+
+
+export const initialState = Record<State>({
+  global: {
+    showBinderMenu: false,
+    showConsole: false,
+    showSaveDialog: false,
+    // Git API Values
+    filePath: "",
+    fileContent: "",
+    provider: "",
+    org: "",
+    repo: "",
+    gitRef: "",
+    // File info
+    lang: ""
+  },
   app: makeAppRecord({
     version: "@nteract/web",
   }),
@@ -70,9 +110,11 @@ export const initialState = Record<AppState>({
   }),
 })();
 
-const configureStore = makeConfigureStore<AppState>()({
+
+const configureStore = makeConfigureStore<State>()({
   packages: [notifications],
   reducers: {
+    global: globalReducer,
     app: reducers.app,
     core: reducers.core as any,
   },

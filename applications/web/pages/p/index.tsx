@@ -15,7 +15,12 @@ import { stringifyNotebook } from "@nteract/commutable";
 const CodeMirrorEditor = dynamic(() => import('@nteract/editor'), { ssr: false });
 
 // User defined
-import { toggleBinderMenu, toggleConsole } from "../../redux/actions"
+import { 
+  toggleBinderMenu, 
+  toggleConsole, 
+  toggleSaveDialog,
+  updateLoggedIn
+} from "../../redux/actions"
 import { Menu, MenuItem } from '../../components/Menu'
 import { Button } from '../../components/Button'
 import { Console } from '../../components/Console'
@@ -38,7 +43,12 @@ const Binder = dynamic(() => import("../../components/Binder"), {
 const BINDER_URL = "https://mybinder.org";
 
 export interface ComponentProps extends HTMLAttributes<HTMLDivElement> {
-  router: NextRouter
+  router: NextRouter,
+  toggleBinderMenu: () => {},
+  toggleConsole: () => {},
+  toggleSaveDialog: () => {}
+  updateLoggedIn: () => {}
+
 }
 
 export interface StateProps {
@@ -53,8 +63,6 @@ type Props = ComponentProps & StateProps;
 **************************/
 export const Main: FC<WithRouterProps> = (props: Props) => {
   const router = useRouter()
-  // Toggle Values
-  const [showSaveDialog, setShowSaveDialog] = useState(false)
   // Git API Values
   const [filePath, setFilepath] = useState(router.query.file as string)
   const [fileContent, setFileContent] = useState("")
@@ -80,11 +88,9 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
   const [host, setHost] = useState()
 
   // Login Values
-  const [loggedIn, setLoggedIn] = useState(false)
   const [username, setUsername] = useState("")
   const [userImage, setUserImage] = useState("")
   const [userLink, setUserLink] = useState("")
-
 
   /***************************************
     Notification and Console functions
@@ -171,7 +177,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
   }
 
   function showSave() {
-    toggle(showSaveDialog, setShowSaveDialog)
+    props.toggleSaveDialog()
   }
 
 
@@ -319,7 +325,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
       .then((res) => res.json())
       .then((data) => {
         if (data["login"] !== undefined) {
-          setLoggedIn(true)
+          props.updateLoggedIn(true)
           setUsername(data["login"])
           setUserLink(data["html_url"])
           setUserImage(data["avatar_url"])
@@ -331,7 +337,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
 
         } else {
           localStorage.removeItem("token")
-          setLoggedIn(false)
+          props.updateLoggedIn(false)
           addLog({
             type: "failure",
             message: `Github token expired. User logged out.`
@@ -451,9 +457,9 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
       }
 
 
-      {showSaveDialog &&
+      {props.globalState.showSaveDialog &&
         <>
-          <Shadow onClick={() => toggle(showSaveDialog, setShowSaveDialog)} />
+          <Shadow onClick={() => props.toggleSaveDialog()} />
           <Dialog >
             <form onSubmit={(e) => onSave(e)} >
               You are about to commit to <b>{username}/{repo}[{gitRef}]</b> as <b>@{username}</b>.
@@ -480,7 +486,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
           <MenuItem>
             <Button text="Run" variant="outlined" icon={runIcon} onClick={() => run()} />
           </MenuItem>
-          {loggedIn &&
+          {props.globalState.loggedIn &&
             <MenuItem>
               <Button text="Save" variant="outlined" icon={saveIcon} onClick={() => showSave()} />
             </MenuItem>
@@ -493,7 +499,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
         </Menu>
         <Menu>
           <MenuItem >
-            {loggedIn
+            {props.globalState.loggedIn
               ? <Avatar userImage={userImage} username={username} userLink={userLink} />
               : <Button onClick={() => OAuthGithub()} text="Connect to Github" icon={githubIcon} />
             }
@@ -573,7 +579,9 @@ const mapStateToProps = (state: State): StateProps => ({
 
 const mapDispatchToProps = {
       toggleBinderMenu: toggleBinderMenu,
-      toggleConsole: toggleConsole
+      toggleConsole: toggleConsole,
+      toggleSaveDialog: toggleSaveDialog,
+      updateLoggedIn: updateLoggedIn
 }
 
 

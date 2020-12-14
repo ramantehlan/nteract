@@ -2,9 +2,20 @@ import {combineReducers} from "redux"
 import * as actions from "./actions"
 
 
+export const updateString = (actionName = "") => {
+  return (state = "", action) => {
+    switch (action.type){
+      case `UPDATE_${actionName}`:
+        return action.value
+      default:
+        return state
+    }
+  }
+}
+
 export const toggleBinderMenuReducer = (state = false, action) => {
   switch(action.type) {
-    case actions.TOGGLE_BINDER_MENU:
+    case actions.BINDER_MENU:
       return !state
     default:
       return state
@@ -13,7 +24,7 @@ export const toggleBinderMenuReducer = (state = false, action) => {
 
 export const toggleConsoleReducer = (state = false, action) => {
   switch(action.type) {
-    case actions.TOGGLE_CONSOLE:
+    case actions.CONSOLE:
       return !state
     default:
       return state
@@ -22,87 +33,25 @@ export const toggleConsoleReducer = (state = false, action) => {
 
 export const toggleSaveDialogReducer = (state = false, action) => {
   switch(action.type) {
-    case actions.TOGGLE_SAVE_DIALOG:
+    case actions.SAVE_DIALOG:
       return !state
     default:
       return state
   }
 }
 
-export const filePathReducer = (state = "", action) => {
-  switch(action.type) {
-    case actions.FILE_PATH:
-      return action.value
-    default:
-        return state
-  }
-}
-
-export const fileContentReducer = (state = "", action) => {
-  switch(action.type) {
-    case actions.FILE_CONTENT:
-      return action.value
-    default:
-        return state
-  }
-}
-
-export const providerReducer = (state = "", action) => {
-  switch(action.type) {
-    case actions.PROVIDER:
-      return action.value
-    default:
-        return state
-  }
-}
-
-export const orgReducer = (state = "", action) => {
-  switch(action.type) {
-    case actions.ORG:
-      return action.value
-    default:
-        return state
-  }
-}
-
-export const repoReducer = (state = "", action) => {
-  switch(action.type) {
-    case actions.REPO:
-      return action.value
-    default:
-        return state
-  }
-}
-
-export const gitRefReducer = (state = "", action) => {
-  switch(action.type) {
-    case actions.GIT_REF:
-      return action.value
-    default:
-        return state
-  }
-}
-
-export const langReducer = (state = "", action) => {
-  switch(action.type) {
-    case actions.LANG:
-      return action.value
-    default:
-        return state
-  }
-}
 
 const globalReducer = combineReducers({
     showBinderMenu: toggleBinderMenuReducer,
     showConsole: toggleConsoleReducer,
     showSaveDialog: toggleSaveDialogReducer,
-    filePath: filePathReducer,
-    fileContent: fileContentReducer,
-    provider: providerReducer,
-    org: orgReducer,
-    repo: repoReducer,
-    gitRef: gitRefReducer,
-    lang: langReducer
+    filePath: updateString(actions.FILE_PATH),
+    fileContent: updateString(actions.FILE_CONTENT),
+    provider: updateString(actions.PROVIDER),
+    org: updateString(actions.ORG),
+    repo: updateString(actions.REPO),
+    gitRef: updateString(actions.GIT_REF),
+    lang: updateString(actions.LANG)
 })
 
 export default globalReducer

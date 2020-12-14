@@ -45,6 +45,24 @@ export interface GlobalRecord {
     gitRef: string,
     // File info
     lang: string,
+    // Commit Values
+    commitMessage: string,
+    // This should be a boolean value but as a string
+    stripOutput: boolean,
+    fileBuffer: object,
+    savedTime: object,
+    // Console 
+    consoleLog: object,
+    notificationLog: object,
+    // Server
+    serverStatus: string,
+    host: object,
+   
+    // Login Values
+    loggedIn: boolean,
+    username: string,
+    userImage: string,
+    userLink: string
 }
 export interface State extends AppState {
   global: GlobalRecord,
@@ -66,7 +84,26 @@ export const initialState = Record<State>({
     repo: "",
     gitRef: "",
     // File info
-    lang: ""
+    lang: "markdown",
+    // Commit Values
+    commitMessage: "Auto commit from nteract web",
+    // This should be a boolean value but as a string
+    stripOutput: false,
+    fileBuffer: {},
+    savedTime: new Date(),
+  
+    // Console 
+    consoleLog: [],
+    notificationLog: [],
+    // Server
+    serverStatus: "launching...",
+    host: {},
+   
+    // Login Values
+    loggedIn: false,
+    username: "",
+    userImage: "",
+    userLink: ""
   },
   app: makeAppRecord({
     version: "@nteract/web",

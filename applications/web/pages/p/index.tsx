@@ -46,8 +46,8 @@ import { Menu, MenuItem } from '../../components/Menu'
 import { Button } from '../../components/Button'
 import { Console } from '../../components/Console'
 import { Notification } from '../../components/Notification'
-import { BinderMenu } from '../../components/BinderMenu'
-import { Avatar } from '../../components/Avatar'
+import BinderMenu from '../../components/BinderMenu'
+import Avatar from '../../components/Avatar'
 import { Input } from '../../components/Input'
 import { Dialog, Shadow, DialogRow, DialogFooter } from '../../components/Dialog';
 import FilesListing from "../../components/FilesListing"
@@ -56,7 +56,7 @@ import { H3, P } from "../../components/Basic"
 import NextHead from "../../components/Header";
 import { getLanguage} from "../../util/helpers"
 import { uploadToRepo, checkFork, getContent } from "../../util/github"
-import { runIcon, saveIcon, menuIcon, githubIcon, consoleIcon, pythonIcon, serverIcon, commitIcon } from "../../util/icons"
+import { runIcon, saveIcon, menuIcon, consoleIcon, pythonIcon, serverIcon, commitIcon } from "../../util/icons"
 const Binder = dynamic(() => import("../../components/Binder"), {
   ssr: false
 });
@@ -117,20 +117,25 @@ export const Main: FC<WithRouterProps> = (props: ComponentProps) => {
    *****************/
 
   useEffect(() => {
+    if (router.query.org != undefined ){
     props.setORG(router.query.org as string)
-    props.setRepo(router.query.repo as string)
-    props.setGitRef(router.query.ref as string)
-    props.setProvider(router.query.vcs as string)
-  }, [props.globalState.provider  ])
-
-  useEffect(() => {
-    // To check if Github token exist, if yes, get user details
-    // Check if username is empty because we need to
-    // get username only if it's not defined.
-    if (localStorage.getItem("token") != undefined && props.globalState.username === "") {
-        getGithubUserDetails()
     }
-  }, [props.globalState.username])
+
+    if (router.query.repo != undefined ){
+    props.setRepo(router.query.repo as string)
+    }
+
+
+    if (router.query.ref != undefined ){
+    props.setGitRef(router.query.ref as string)
+    }
+
+    if (router.query.vcs != undefined ){
+    props.setProvider(router.query.vcs as string)
+    }
+    
+  }, [props.globalState.provider])
+
 
   // To update file when filePath is updated
   // Also makes sure that filepath is not undefined
@@ -258,72 +263,8 @@ export const Main: FC<WithRouterProps> = (props: ComponentProps) => {
 
   }
 
-  function updateVCSInfo(event, previousProvider, previousOrg, previousRepo, previousGitRef) {
-    event.preventDefault()
 
-    if (props.globalState.provider != previousProvider || props.globalState.org != previousOrg || props.globalState.repo != previousRepo || props.globalState.gitRef != previousGitRef ) {
-      props.setProvider(previousProvider)
-      props.setORG(previousOrg)
-      props.setRepo(previousRepo)
-      props.setGitRef(previousGitRef )
-      props.setFilePath("")
-      // To empty buffer when repo is updated
-      props.resetFileBuffer()
 
-      props.appendNotificationLog({
-        type: "success",
-        message: `Repo updated.`
-      })
-
-    props.appendConsoleLog({
-        type: "success",
-        message: `Repo updated: VCS=${props.globalState.provider} Owner=${props.globalState.org} repo=${props.globalState.repo} ref=${props.globalState.gitRef} file=${props.globalState.filePath}`
-      })
-    }
-
-  }
-
-  function OAuthGithub() {
-    if (localStorage.getItem("token") == undefined) {
-      window.open('https://github.com/login/oauth/authorize?client_id=83370967af4ee7984ea7&scope=repo,read:user&state=23DF32sdGc12e', '_blank');
-      window.addEventListener('storage', getGithubUserDetails)
-    }
-  }
-
-  function getGithubUserDetails() {
-    const token = localStorage.getItem("token")
-    fetch("https://api.github.com/user", {
-      method: "GET",
-      headers: new Headers({
-        "Authorization": "token " + token
-      })
-
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data["login"] !== undefined) {
-          props.updateLoggedIn(true)
-          props.updateUsername(data["login"])
-          props.updateUserLink(data["html_url"])
-          props.updateUserImage(data["avatar_url"])
-
-    props.appendConsoleLog({
-            type: "success",
-            message: `Successfully logged into Github as @${data["login"]}`
-          })
-
-        } else {
-          localStorage.removeItem("token")
-          props.updateLoggedIn(false)
-          addLog({
-            type: "failure",
-            message: `Github token expired. User logged out.`
-          })
-
-        }
-      })
-    window.removeEventListener("storage", getGithubUserDetails)
-  }
 
   const addBinder = (ht) => {
     if (ht != props.globalState.host) {
@@ -407,11 +348,6 @@ export const Main: FC<WithRouterProps> = (props: ComponentProps) => {
         props.globalState.showBinderMenu &&
 
         <BinderMenu
-          provider={props.globalState.provider}
-          org={props.globalState.org}
-          repo={props.globalState.repo}
-          gitRef={props.globalState.gitRef}
-          updateVCSInfo={updateVCSInfo}
           style={{
             height: "150px",
             position: "absolute",
@@ -487,10 +423,7 @@ export const Main: FC<WithRouterProps> = (props: ComponentProps) => {
         </Menu>
         <Menu>
           <MenuItem >
-            {props.globalState.loggedIn
-              ? <Avatar userImage={props.globalState.userImage} username={props.globalState.username} userLink={props.globalState.userLink} />
-              : <Button onClick={() => OAuthGithub()} text="Connect to Github" icon={githubIcon} />
-            }
+            <Avatar /> 
           </MenuItem>
         </Menu>
       </Header>

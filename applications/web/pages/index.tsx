@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { BinderMenu } from "../components/BinderMenu"
+import BinderMenu from "../components/BinderMenu"
 import { P, Box, Logo } from "../components/Basic"
 import Head from "next/head";
 
@@ -38,11 +38,7 @@ export const Main: FC<HTMLDivElement> = () => {
         </P>
 
         <BinderMenu
-          provider="gh"
-          org="nteract"
-          repo="examples"
-          gitRef="master"
-          updateVCSInfo={updateVCSInfo}
+          callback={updateVCSInfo}
           style={customStyle}
         />
 

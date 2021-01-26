@@ -1,7 +1,6 @@
 import React, { FC } from "react";
-import styled from "styled-components";
 import { BinderMenu } from "../components/BinderMenu"
-import { H3, P, Box, Logo } from "../components/Basic"
+import { P, Box, Logo } from "../components/Basic"
 import Head from "next/head";
 
 const customStyle = {
@@ -53,8 +52,5 @@ export const Main: FC<HTMLDivElement> = () => {
   );
 }
 
-/*
- TODO: We need to add nteract logo and few instructions here about the application, this is the landing page.
- */
 
 export default Main

@@ -88,24 +88,33 @@ export const setCommitMessage = (text: string) => ({
   value: text
 })
 
-export const toggleStripOutput = (text: string) => ({
-  type: `TOGGLE_${STRIP_OUTPUT}`,
-  value: text
+export const toggleStripOutput = () => ({
+  type: `TOGGLE_${STRIP_OUTPUT}`
 })
 
-export const setFileBuffer = (obj: object) => ({
-  type: `UPDATE_${FILE_BUFFER}`,
-  value: obj
+export const resetFileBuffer = () => ({
+  type: `RESET_${FILE_BUFFER}`
 })
+
+export const updateFileBuffer = (content: string, file: string) => ({
+  type: `UPDATE_${FILE_BUFFER}`,
+  fileName: file,
+  value: content
+})
+
 
 export const setSavedTime = (obj: object) => ({
-  type: `UPDATE_${SAVED_TIME}`,
+  type: `set_${SAVED_TIME}`,
   value: obj
 })
 
-export const appendConsolelog = (obj: object) => ({
+export const appendConsoleLog = (obj: object) => ({
   type: `APPEND_${CONSOLE_LOG}`,
   value: obj
+})
+
+export const shiftNotificationLog = () => ({
+  type: `SHIFT_${NOTIFICATION_LOG}`,
 })
 
 export const appendNotificationLog = (obj: object) => ({
@@ -119,7 +128,7 @@ export const setServerStatus = (text: string) => ({
 })
 
 export const setHost = (obj: object) => ({
-  type: `UPDATE_${HOST}`,
+  type: `SET_${HOST}`,
   value: obj
 })
 

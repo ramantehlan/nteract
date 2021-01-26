@@ -21,6 +21,7 @@ import { notifications } from "@nteract/mythic-notifications";
 import { makeConfigureStore } from "@nteract/myths";
 import { Media } from "@nteract/outputs";
 import { contents } from "rx-jupyter";
+import { ServerConfig } from "@nteract/types";
 import globalReducer from "./reducers"
 
 const kernelspecsRef = createKernelspecsRef();
@@ -30,6 +31,10 @@ const composeEnhancers =
     ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     : compose;
 
+interface logStruct {
+  type: string,
+  message: string
+}
 
 export interface GlobalRecord {
     // Toggle Values
@@ -52,11 +57,11 @@ export interface GlobalRecord {
     fileBuffer: object,
     savedTime: object,
     // Console 
-    consoleLog: object,
-    notificationLog: object,
+    consoleLog: Array<logStruct>,
+    notificationLog: Array<logStruct>,
     // Server
     serverStatus: string,
-    host: object,
+    host: ServerConfig,
    
     // Login Values
     loggedIn: boolean,
@@ -64,13 +69,15 @@ export interface GlobalRecord {
     userImage: string,
     userLink: string
 }
+
+// We define the state with the global state and inherited state
 export interface State extends AppState {
   global: GlobalRecord,
   app: AppRecord,
   core: CoreRecord
 }
 
-
+// Initial state of the application
 export const initialState = Record<State>({
   global: {
     showBinderMenu: false,
@@ -79,10 +86,10 @@ export const initialState = Record<State>({
     // Git API Values
     filePath: "",
     fileContent: "",
-    provider: "",
-    org: "",
-    repo: "",
-    gitRef: "",
+    provider: "github",
+    org: "nteract",
+    repo: "examples",
+    gitRef: "master",
     // File info
     lang: "markdown",
     // Commit Values
@@ -97,7 +104,7 @@ export const initialState = Record<State>({
     notificationLog: [],
     // Server
     serverStatus: "launching...",
-    host: {},
+    host: null,
    
     // Login Values
     loggedIn: false,

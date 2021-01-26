@@ -1,6 +1,38 @@
 import {combineReducers} from "redux"
 import * as actions from "./actions"
 
+export const appendObject = (actionName = "", defaultState = []) => {
+  return (state = defaultState, action) => {
+    let newState = [...state]
+    switch (action.type){
+      case `APPEND_${actionName}`:
+        newState.push(action.value)
+        return newState
+      case `SHIFT_${actionName}`:
+        newState.shift()
+        return newState
+      default:
+        return state
+    }
+  }
+}
+
+export const updateObject = (actionName = "", defaultState = {}) => {
+  return (state = defaultState, action) => {
+    switch (action.type){
+      case `SET_${actionName}`:
+        return action.value
+      case `UPDATE_${actionName}`:
+        const newFileBuffer = state
+        newFileBuffer[action.fileName] = action.value
+        return newFileBuffer
+      case `RESET_${actionName}`:
+        return {}
+      default:
+        return state
+    }
+  }
+}
 
 export const updateString = (actionName = "", defaultState = "") => {
   return (state = defaultState, action) => {
@@ -47,13 +79,15 @@ const globalReducer = combineReducers({
     gitRef: updateString(actions.GIT_REF),
     lang: updateString(actions.LANG),
     commitMessage: updateString(actions.COMMIT_MESSAGE),
-    stripOutput: updateString(actions.STRIP_OUTPUT),
-    fileBuffer: updateString(actions.FILE_BUFFER),
-    savedTime: updateString(actions.SAVED_TIME),
-    consolelog: updateString(actions.CONSOLE_LOG),
-    notificationlog: updateString(actions.NOTIFICATION_LOG),
+    stripOutput: toggleBool(actions.STRIP_OUTPUT),
+    fileBuffer: updateObject(actions.FILE_BUFFER),
+    savedTime: updateObject(actions.SAVED_TIME),
+
+    consoleLog: appendObject(actions.CONSOLE_LOG),
+    notificationLog: appendObject(actions.NOTIFICATION_LOG),
+
     serverStatus: updateString(actions.SERVER_STATUS),
-    host: updateString(actions.HOST),
+    host: updateObject(actions.HOST),
     loggedIn: updateBool(actions.LOGGED_IN),
     username: updateString(actions.USERNAME),
     userImage: updateString(actions.USER_IMAGE),

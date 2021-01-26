@@ -104,7 +104,11 @@ export const initialState = Record<State>({
     notificationLog: [],
     // Server
     serverStatus: "launching...",
-    host: null,
+    host: {
+      crossDomain: true,
+      endpoint: "",
+      token: ""
+    },
    
     // Login Values
     loggedIn: false,

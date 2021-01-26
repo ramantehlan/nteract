@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, useState, useEffect } from "react";
+import React, { FC, HTMLAttributes, useEffect } from "react";
 import { WithRouterProps } from "next/dist/client/with-router";
 import { withRouter, useRouter, NextRouter } from "next/router";
 import { connect } from "react-redux";
@@ -50,11 +50,11 @@ import { BinderMenu } from '../../components/BinderMenu'
 import { Avatar } from '../../components/Avatar'
 import { Input } from '../../components/Input'
 import { Dialog, Shadow, DialogRow, DialogFooter } from '../../components/Dialog';
-import { FilesListing } from "../../components/FilesListing"
+import FilesListing from "../../components/FilesListing"
 import { Layout, Header, Body, Side, Footer } from "../../components/Layout"
 import { H3, P } from "../../components/Basic"
 import NextHead from "../../components/Header";
-import { getLanguage, useInput, useCheckInput } from "../../util/helpers"
+import { getLanguage} from "../../util/helpers"
 import { uploadToRepo, checkFork, getContent } from "../../util/github"
 import { runIcon, saveIcon, menuIcon, githubIcon, consoleIcon, pythonIcon, serverIcon, commitIcon } from "../../util/icons"
 const Binder = dynamic(() => import("../../components/Binder"), {
@@ -91,20 +91,16 @@ export interface ComponentProps extends HTMLAttributes<HTMLDivElement> {
   updateUserImage: (val:string) => {}
   updateUserLink: (val:string) => {}
 
-
-}
-
-export interface StateProps {
   contents: Immutable.Map<string, ContentRecord>,
   globalState: GlobalRecord
+
 }
 
-type Props = ComponentProps & StateProps;
 
 /**************************
  Main Component
 **************************/
-export const Main: FC<WithRouterProps> = (props: Props) => {
+export const Main: FC<WithRouterProps> = (props: ComponentProps) => {
   const router = useRouter()
   /***************************************
     Notification and Console functions
@@ -241,29 +237,6 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
     })
 
 
-
-  }
-
-
-
-  // Folder Exploring Function
-  async function getFiles(path: string) {
-    const octokit = new Octokit()
-    let fileList: string[][] = []
-
-    await getContent(octokit, props.globalState.org, props.globalState.repo, props.globalState.gitRef, path).then((res) => {
-      res.data.map((item: any) => {
-        fileList.push([item.name, item.path, item.type])
-      })
-    }, (e: Error) => {
-      fileList = [[""]]
-      addLog({
-        type: "failure",
-        message: "Github repository not found."
-      })
-
-    })
-    return fileList
 
   }
 
@@ -527,13 +500,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
           alt="nteract logo"
           className="logo"
         />
-        <FilesListing
-          loadFile={loadFile}
-          loadFolder={getFiles}
-          org={props.globalState.org}
-          repo={props.globalState.repo}
-          gitRef={props.globalState.gitRef}
-        />
+        <FilesListing/>
       </Side>
       <Body>
 
@@ -587,7 +554,7 @@ export const Main: FC<WithRouterProps> = (props: Props) => {
 
 
 
-const mapStateToProps = (state: State): StateProps => ({
+const mapStateToProps = (state: State) => ({
       contents: contentByRef(state),
       globalState: state.global
 })

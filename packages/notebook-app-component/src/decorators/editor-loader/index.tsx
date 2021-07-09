@@ -15,13 +15,13 @@ export class EditorLoader extends React.Component<Props> {
   loadEditors() {
     // Add the editor components to state
     import(
-      /* webpackChunkName: "codemirror" */ "@nteract/stateful-components/src/inputs/connected-editors/codemirror"
+      /* webpackChunkName: "codemirror" */ "@nteract/stateful-components/lib/inputs/connected-editors/codemirror"
     ).then(cm => {
       this.props.addEditor("codemirror", cm.default);
     });
 
     import(
-      /* webpackChunkName: "monaco" */ "@nteract/stateful-components/src/inputs/connected-editors/monacoEditor"
+      /* webpackChunkName: "monaco" */ "@nteract/stateful-components/lib/inputs/connected-editors/monacoEditor"
     ).then(monaco => {
       this.props.addEditor("monaco", monaco.default);
     });
